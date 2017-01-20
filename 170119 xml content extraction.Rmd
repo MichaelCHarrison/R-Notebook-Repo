@@ -1,0 +1,20 @@
+Testing out R notebooks and also learning about reading in xml/html in data cleaning 
+course. 
+
+The example through the course work uses the Baltimore Ravens page on ESPN for the following process. Going to use the page for the Portland Trail Blazers as that's more relevant to me.
+
+Process for taking in XML data:
+
+```{r}
+fileUrl <- "http://www.espn.com/nba/team/_/name/por/portland-trail-blazers"
+doc <- htmlTreeParse(fileUrl, useInternal = TRUE)
+scores <- xpathSApply(doc, "//div[@class='score']", xmlValue)
+gameInfo <- xpathSApply(doc, "//div[@class='game-info']", xmlValue)
+
+stat_list <- list(scores, gameInfo[2:25])
+score_list <- as.data.frame(stat_list)
+score_list
+
+```
+
+This looks terrible but managed to get it into a 2 column dataframe with scores lined up with opponent. 

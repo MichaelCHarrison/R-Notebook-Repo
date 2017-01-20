@@ -1,0 +1,35 @@
+Reading data from JSON using the jsonlite package:
+
+Using the github API to access the repository of the instructor for John's Hopkins data science instructor.
+
+```{r}
+jsonData <- fromJSON("https://api.github.com/users/jtleek/repos")
+names(jsonData)
+```
+
+```{r}
+names(jsonData$owner)
+```
+
+Can continue access nested data by stringing $
+
+```{r}
+jsonData$owner$login
+```
+
+Writing a data fram to JSON
+
+```{r}
+myjson <- toJSON(head(iris,5), pretty=TRUE)
+cat(myjson)
+
+
+```
+
+Converting JSON back to data frame using fromJSON function.?
+
+```{r}
+iris2 <- fromJSON(myjson)
+head(iris2)
+```
+

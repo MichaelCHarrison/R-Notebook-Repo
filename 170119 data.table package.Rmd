@@ -1,0 +1,123 @@
+Using data.table to create data tables just like data frames
+
+**Reminder option + command + i inserts chunk**
+
+```{r}
+library(data.table)
+DF = data.frame(x=rnorm(9), y=rep(c("a","b","c"), each =3), z=rnorm(9))
+head(DF,3)
+```
+
+Now to create the same table using data.table
+
+```{r}
+DT = data.table(x=rnorm(9), y=rep(c("a","b","c"),each=3),z=rnorm(9))
+head(DT,3)
+```
+
+To see all the data tables in memory use the tables() command
+
+```{r}
+tables()
+```
+
+One difference between subsetting in data.table and data.frame...
+
+
+```{r}
+DT[c(2,3)]
+## This will pull rows as opposed to columns like data.frame would
+```
+
+Calculating values for variables with expression:
+
+With DT you can pass a list of functions you want to perform, where the functions are applied to variables named by columns
+
+```{r}
+DT[,list(mean(x), sum(z))]
+```
+
+To add new columns using data.table:
+
+```{r}
+DT[,w:=z^2]
+## to add column w, use command := with values of Z square
+```
+
+A warning about adding new columns:
+
+```{r}
+DT2 <- DT
+DT[, y:=2]
+
+## DT2 is not a copy, and therefore future changes will impact the data of the orignal. The code above set column y = 2, which will be reflected in both DT and DTs; must use the copy function to create new DTs. 
+```
+
+Multiple operations:
+
+```{r}
+DT[,m:= {tmp <- (x+z); log2(tmp+5)}]
+
+## multiple step functions to create new variable. Statements enclosed in curly brackets - tmp (temporary variable), adds x+z which is then passed to second statement.
+```
+
+Plyr like operations:
+
+```{r}
+DT[,a:= x>0]
+
+## Adding variable A to the table, where x>0 will return a boolean value. If you want to summarize a variable by the boolean in a
+
+DT[,b:= mean(x+w), by=a]
+
+## This takes the mean of X+W when A is equal to true, and place that mean value in all the rows where A is euqal to true. Then, it will take the mean of X+W where A is equal to false and place that value into b where a is false.
+```
+
+Special Variables:
+
+.N - An integer, length 1, containing the number
+
+```{r}
+set.seed(123);
+
+DT <- data.table(x=sample(letters[1:3], 1E5, TRUE))
+DT[, .N, by=x]
+
+##.N is an integer linked one and it's a containment number of times that a particular group appears and so if I data table that has a large number of As, Bs, and Cs in it, so about 100,000 A B and Cs. To count the number of times each of those letters appear I can use data table, dot N, and then grouped by the X variable. What that will do is it will count, dot N is just count the number of times grouped by the X variable. It does that very fast as opposed to the equivalent operation, which is just doing that table of DT dollar sign X
+```
+
+Keys: A unique aspect of data tables is that they have keys, so if you set the key, it's possible to subset and sort a data table much more rapidly than you would be able to do with a data frame. Here, I'm going to create a data table, and it's going to have a variable X. And it's gonna have a variable Y and I'm gonna set the key for the data table to be the variable X. Then if I want a subset on the basis of x or if I put in quoted a here, it knows to go and look in the key, and the key is x, and it very quickly subsets the data to only the values of x that are equal to a. 
+
+** THIS MIGHT BE USEFUL FOR PENDLETON'S DATA TO USE RANGES AS A KEY **
+
+```{r}
+DT <- data.table(x=rep(c("a","b","c"), each = 100), y=rnorm(300))
+setkey(DT,x) 
+DT['a']
+
+```
+
+
+Joins: You can also use keys to facilitate joints between data tables so for example here I've created two data tables where they have a variable X and a variable Y and in this case the second data table has a variable Z. I can set the key in both cases to be equal to x, so the same key for both data tables. And then I can merge them together. This is actually quite a bit faster than merging with the data frame as long as you have the same key for both data tables. It can be very fast. 
+
+```{r}
+DT1 <- data.table(x=c('a','a','b','dt1'), y=1:4)
+DT2 <- data.table(x=c('a','b','dt2'), z=5:7)
+setkey(DT1, x); setkey(DT2,x)
+merge(DT1, DT2)
+```
+ 
+Data tables read faster from the disk.  
+ 
+ 
+```{r}
+big_df <- data.frame(x=rnorm(1E6), y=rnorm(1E6))
+file <- tempfile()
+write.table(big_df, file=file, row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+system.time(fread(file))
+```
+
+```{r}
+system.time(read.table(file, header=TRUE, sep="\t"))
+```
+
