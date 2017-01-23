@@ -1,0 +1,69 @@
+Getting data off webpages using the readLines() function:
+
+```{r}
+con = url("http://scholar.google.com/citations?user=HI-I6C0AAAAJ&hl=en")
+htmlCode = readLines(con)
+close(con)
+htmlCode
+```
+
+Parsing with XML
+
+```{r}
+library(XML)
+url <- "http://scholar.google.com/citations?user=HI-I6C0AAAAJ&hl=en"
+
+html <- htmlTreeParse(url, useInternalNodes = TRUE)
+
+xpathSApply(html, "//title", xmlValue)
+```
+
+```{r}
+xpathSApply(html, "//td[@id='col-citedby']", xmlValue)
+```
+
+Another approach to getting data off the web is with the GET command from the httr package:
+
+```{r}
+library(httr); html2 = GET(url)
+content2 = content(html2, as="text")
+## above extracts the content
+
+parsedHtml = htmlParse(content2, asText = TRUE)
+## html parse command parses out text and gets the parsed html, parsed html looks exactly what you would get if you use the XML package to extract the data directly
+
+xpathSApply(parsedHtml, "//title", xmlValue)
+```
+
+Accessing websites with passwords:
+
+```{r}
+pg1 = GET("http://httpbin.org/basic-auth/user/passwd")
+pg1
+
+## returns a 401 message because connection not authenticated
+```
+
+To access website through authentication:
+
+```{r}
+pg2 = GET("http://httpbin.org/basic-auth/user/passwd", 
+          authenticate("user", "passwd")) ##provide username/password as values for the                                             authenticate argument
+pg2
+
+```
+
+```{r}
+names(pg2)
+```
+
+Using handles:
+
+```{r}
+google = handle("httl://google.com")
+pg1 = GET(handle=google, path="/")
+pg2 = GET(handle=google, path="search")
+
+##If you handles, you can save the authentication accross multiple accesses to a website
+```
+

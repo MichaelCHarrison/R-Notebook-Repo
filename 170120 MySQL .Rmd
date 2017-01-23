@@ -1,0 +1,57 @@
+Connecting and listing databases with MySQL
+
+Using the dbConnect command from MySQL package (which can connect to other DBs as well), first parameter sets what kind of database you're connecting to, user parameter will be provided by distributor. Make sure to set the connection to a handle(uscsDb)
+```{r}
+ucscDb <- dbConnect(MySQL(), user="genome",
+                    host="genome-mysql.cse.ucsc.edu")
+result <- dbGetQuery(ucscDb,"show databases;"); dbDisconnect(ucscDb);
+
+## Use dbGetQuery command to go to connection and run the following MySQL command. After result is attained, disconnect from the DB
+
+```
+
+```{r}
+result
+```
+
+Goign to focus on one of the databases in the UCSC database: hg19 - a build of the human genome project.
+
+```{r}
+ucscDb <- dbConnect(MySQL(), user="genome", db="hg19",
+                    host="genome-mysql.cse.ucsc.edu")
+allTables <- dbListTables(ucscDb); dbDisconnect(ucscDb)
+length(allTables)
+```
+```{r}
+allTables[1:5]
+```
+
+To list fields in within a given table:
+
+```{r}
+dbListFields(hg19, "affyU133Plus2")
+```
+
+To find number of records within a given field of a table - using a SQL command:
+
+```{r}
+dbGetQuery(hg19, "select count(*) from affyU133Plus2")
+```
+
+To read from the table:
+
+```{r}
+affyData <- dbReadTable(hg19, "affyU133Plus2")
+head(affyData)
+```
+
+To select a specific subset from a table:
+
+```{r}
+query <- dbSendQuery(hg19, "select * from affyU133Plus2 where misMatches between 1 and 3")
+affyMis <- fetch(query); quantil(affyMis$misMatches)
+
+affyMisSmall <- fetch(query, n=10); dbClearResult(query); 
+dim(affyMisSmall) #returns dimensions of the queried table
+```
+
