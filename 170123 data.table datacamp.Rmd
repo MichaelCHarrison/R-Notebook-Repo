@@ -1,0 +1,23 @@
+Learning how to use data.table through datacamp.com
+
+General form of a data.table query:
+
+3 parts to query as read in R - i, j, by; read as select from DT all rows where mpg >20, and of those select average horse power and minimum weight, grouping the rows by cylinder and whether the cars have 5 gears or not.
+
+We can read this as take DT, subset rows using i, then calculate j group by by
+
+** Can translate to SQL in which i = where, j = select, by = group by
+
+
+```{r}
+mtcarsDT <- data.table(mtcars)
+
+mtcarsDT[
+        mpg > 20,
+        .(AvgHP = mean(hp),
+          "MinWT(kg)" = min(wt*453.6)),
+        by = .(cyl, under5gears = gear < 5)
+]
+```
+
+
