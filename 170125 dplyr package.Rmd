@@ -1,0 +1,119 @@
+dplyr Package
+
+Getting data:
+
+```{r}
+setwd("~/Desktop/Coursera/Cleaning Data")
+
+if(!file.exists("./data")){
+    dir.create("./data")
+}
+
+fileURL <- "https://github.com/DataScienceSpecialization/courses/blob/master/03_GettingData/dplyr/chicago.rds?raw=true"
+
+download.file(fileURL, destfile = "./data/chicago.rds", method = "curl", extra='-L')
+
+chicago <- readRDS("./data/chicago.rds")
+
+dim(chicago) #check for dimensions of data set
+
+```
+
+To explore the structure of the data frame:
+
+```{r}
+str(chicago)
+```
+
+Finding the names of data set columns
+
+```{r}
+names(chicago)
+```
+
+SELECT FUNCTION:
+
+```{r}
+head(select(chicago, city:dptp))
+#here, using the select function we pass the df, and using names of the cols we can take the slice of variabels we want displayed
+```
+
+Likewise, you can use the - sign to set which col/vars you DO NOT want to appear in the result df
+
+```{r}
+head(select(chicago, -(city:dptp)))
+```
+
+NEXT FUNCTION: FILTER FUNCTION
+
+```{r}
+chic.f <- filter(chicago, pm25tmean2 > 30)
+head(chic.f, 10)
+```
+
+You don't have to subset rows only by values in rows of one column; you can subset by multiple values:
+
+```{r}
+chic.f <- filter(chicago, pm25tmean2 > 30 & tmpd > 30)
+head(chic.f)
+```
+
+ARRANGE FUNCTION: used to reorder the rows of data frame based on the values of a column
+
+```{r}
+chicago <- arrange(chicago, date)
+head(chicago)
+```
+
+If you want to arrange a given column by descening order:
+
+```{r}
+chicago <- arrange(chicago, desc(date))
+head(chicago)
+```
+
+RENAME FUNCTION:
+
+```{r}
+chicago <- rename(chicago, temp = tmpd) ##dew point, and pm25 previously renamed
+#give new name, then old name to rename
+head(chicago)
+```
+
+MUTATE FUNCTION: transforms existing variabels or create new variables
+
+```{r}
+chicago <- mutate(chicago, pm25detrend = pm25-mean(pm25, na.rm = TRUE))
+head(select(chicago, pm25, pm25detrend))
+```
+
+GROUP BY FUNCTION: 
+
+```{r}
+chicago <- mutate(chicago, tempcat = factor(1 * (temp > 80), labels = c("cold","hot")))
+hotcold <- group_by(chicago, tempcat)
+hotcold
+```
+
+SUMMARIZE FUNCTION:summarize the hotcold object that has been split on the temp category variable. Find out what the mean pm25 is for cold and hot, as well as the mean of the ozone and median for no2
+
+```{r}
+summarize(hotcold, pm25 = mean(pm25, na.rm = TRUE), o3 = max(o3tmean2), no2 = median(no2tmean2))
+```
+
+Also categorize on other variables, perhaps each year of the data set:
+
+```{r}
+chicago <- mutate(chicago, year = as.POSIXlt(date)$year + 1900)
+years <- group_by(chicago, year)
+summarize(years, pm25 = mean(pm25, na.rm = TRUE), o3 = max(o3tmean2), no2 = median(no2tmean2))
+
+```
+
+
+dplyr package implements a special operator that allows you to chain different operations together. allows you to see what operations are happening in a readable way.To chain, you use the opeartor: %>%
+
+```{r}
+chicago %>% mutate(month = as.POSIXlt(date)$mon +1) %>% group_by(month) %>% summarize(pm25 = mean(pm25, na.rm = TRUE), o3 = max(o3tmean2), no2 = median(no2tmean2))
+```
+

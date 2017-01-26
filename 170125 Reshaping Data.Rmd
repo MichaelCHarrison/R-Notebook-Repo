@@ -1,0 +1,86 @@
+Reshaping data:
+
+Melting data frames
+
+```{r}
+library(reshape2)
+head(mtcars)
+```
+
+```{r}
+mtcars$carname <- rownames(mtcars)
+carMelt <- melt(mtcars, id=c("carname","gear","cyl"), measure.vars=c("mpg","hp"))
+## id argument sets which variables are for identification, and measure.vars set which variables are measurements
+
+head(carMelt, n=3)
+```
+```{r}
+tail(carMelt, n=3)
+```
+
+This methodology reshapes the data frame so that it's tall and skinny, in which mpg and hp have their own rows.  This effectively doubles the length of the data frame constructed upon the set IDs and measurement variables
+
+
+Casting data frames: after melting the data set, you can recast it in many ways; reformatting into different shapes using the dcast function.
+
+```{r}
+cylData <- dcast(carMelt, cyl ~ variable) #cyl subsets as row value value
+cylData
+
+## in the above, we see how cyl is broken down by the variables set in the melt function above; that is, subset by cyl and return counts(length) of those within set variable(cyl)
+```
+
+```{r}
+cylData <- dcast(carMelt, cyl ~ variable,mean)
+cylData
+
+## you can pass a function after the variable
+```
+
+Another thing you want to do is average values within a particular factor. 
+
+```{r}
+head(InsectSprays)
+```
+
+Might want to take the sum of the count of insects you see of each of the different sprays:Take the count variables and pass to tapply, and sum along the spray variable 
+```{r}
+tapply(InsectSprays$count, InsectSprays$spray, sum)
+
+#This is the shorthand way to go about this
+```
+
+Another way(split, apply, combine):
+
+```{r}
+spIns = split(InsectSprays$count, InsectSprays$spray)
+sprCount = lapply(spIns, sum)
+unlist(sprCount)
+```
+
+To recombine, without having to unlist the data, use the sapply function and pass the split data frame
+
+```{r}
+sapply(spIns, sum)
+```
+
+Yet ANOTHER way to go about it...the plyr package
+
+```{r}
+library(plyr)
+ddply(InsectSprays, .(spray), summarize, sum=sum(count)) 
+
+## within paranetheses, list which variable you want to summarize - have to use .() so that you don't have to use quotation marks around spray. Then you tell function you want to summarize, setting summarize column name and the way it is calculated 
+```
+
+This methodology is nice because you can use it to calculate the values and apply them to each variable. 
+
+```{r}
+spraySums <- ddply(InsectSprays, .(spray), summarize, sum = ave(count, FUN=sum))
+dim(spraySums)
+```
+
+```{r}
+spraySums
+```
+You can then add this data frame which is of equal length to the original for the purpose of additional analyses; that is, with each row, the total count for each spray subset is added to it
