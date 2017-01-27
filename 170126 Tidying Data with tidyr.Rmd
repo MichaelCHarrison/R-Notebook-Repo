@@ -1,0 +1,19 @@
+Tidying Data with tidyr:
+
+This script took in SAT data initially selectin all columns except those containing the string "total" in their name. Next, it gathered the columns using the key "part_sex"" and value "count", and not gathering by score_range. The separate function was then used to separate part_sex into the columns part and sex into a df which was then grouped by those variables. Finally, the mutate function was called to make totals of the count and prop variable based on the grouping.
+
+
+```{r}
+library(dplyr, tidyr)
+
+
+sat %>%
+  select(-contains("total")) %>%
+  gather(part_sex, count, -score_range) %>%
+  separate(part_sex, c("part", "sex")) %>%
+  group_by(part, sex)%>%
+  mutate(total = sum(count),
+         prop = count / total
+  ) %>% print
+```
+

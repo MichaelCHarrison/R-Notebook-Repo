@@ -1,0 +1,40 @@
+Summarizing using grouping and chaining with dplyr:
+
+Summarizing a data set that is a product of group_by(df, variable):
+
+```{r}
+pack_sum <- summarize(by_package,
+                      count = n(),
+                      unique = n_distinct(ip_id),
+                      countries = n_distinct(country),
+                      avg_bytes = mean(size))
+```
+
+Using the %>% operator ("then") to chain functions for group summary:
+
+```{r}
+result3 <-
+  cran %>%
+  group_by(package) %>%
+  summarize(count = n(),
+            unique = n_distinct(ip_id),
+            countries = n_distinct(country),
+            avg_bytes = mean(size)
+  ) %>%
+  filter(countries > 60) %>%
+  arrange(desc(countries), avg_bytes)
+
+```
+
+Piping with dplyr:
+
+```{r}
+cran %>%
+  select(ip_id, country, package, size) %>%
+  mutate(size_mb = size / 2^20) %>%
+  filter(size_mb <= 0.5) %>%
+  arrange(desc(size_mb))%>%
+        print()
+
+```
+
