@@ -1,0 +1,139 @@
+Editing Text Variables
+
+```{r}
+if(!file.exists("./data")){dir.create("./data")}
+fileUrl <- "https://data.baltimorecity.gov/api/views/dz54-2aru/rows.csv?accessType=DOWNLOAD"
+download.file(fileUrl, destfile = "./data/cameras.csv", method="curl")
+cameraData <- read.csv("./data/cameras.csv")
+names(cameraData)
+```
+
+To simplify interactive querying and scripting, set all columns names to lower case:
+
+```{r}
+tolower(names(cameraData))
+```
+
+If you want to remove periods added by R upon import, utilize the strsplit() function
+
+```{r}
+splitNames = strsplit(names(cameraData),"\\.")
+
+splitNames[[5]]
+```
+
+Looking at index 6, the original string has been split:
+
+```{r}
+splitNames[[6]]
+```
+
+Want to keep the first element of the list, so by using the sapply() function:
+ 
+```{r}
+firstElement <- function(x){x[1]}
+sapply(splitNames, firstElement )
+```
+
+
+Editting text variabels with Peer Review data:
+
+```{r}
+fileUrl1 <- "https://dl.dropboxusercontent.com/u/7710864/data/reviews-apr29.csv"
+fileUrl2 <- "https://dl.dropboxusercontent.com/u/7710864/data/solutions-apr29.csv"
+download.file(fileUrl1, destfile = "./data/reviews.csv", method="curl")
+download.file(fileUrl2, destfile = "./data/solutions.csv", method="curl")
+reviews <- read.csv("./data/reviews.csv"); 
+solutions <- read.csv("./data/solutions.csv")
+head(reviews, 2)
+```
+```{r}
+head(solutions, 2)
+```
+
+Checking for names and utilizing the sub() function to remove underscores
+
+```{r}
+names(reviews)
+```
+```{r}
+sub("_", "", names(reviews))
+```
+
+If in the situation where you need to replace multiple characters in a string (intermittant underscores for example), utilize the gsub function as the sub() function will only replace the first instance in a string
+
+```{r}
+testName <- "this_is_a_test"
+sub("_", "", testName)
+```
+Now with gsub()
+```{r}
+gsub("_", "", testName)
+```
+
+Searching for specific values or variable names:
+
+Find all the intersections that include "Alameda" as one of the rows using the grep() function - will take as input a search string in all of a given variable and return the element positions 
+
+```{r}
+grep("Alameda", cameraData$intersection)
+```
+
+
+```{r}
+table(grepl("Alameda", cameraData$intersection))
+```
+
+Using grepl() to subset data - suppose you want to find all the cases where alameda does not appear; use this to subset data for only certain cases you want to find
+
+```{r}
+cameraData2 <- cameraData[!grepl("Alameda", cameraData$intersection),]
+cameraData2
+```
+
+Using the grep() function, you can set the value=TRUE to return the string as opposed to the position of the string in the data set
+
+```{r}
+grep("Alameda", cameraData$intersection, value=TRUE)
+```
+
+Another thing you can do with the grep() function is look for values that do not appear which return integer(0) if it doesn't appear.
+```{r}
+grep("JeffStreet", cameraData$intersection)
+```
+
+If you need 0 value return, use the length() function to return value.
+
+```{r}
+length(grep("JeffStreet", cameraData$intersection))
+```
+
+MORE USEFUL STRING FUNCTIONS
+
+Finding number of characters in a string:
+```{r}
+library(stringr)
+nchar("Jeffrey Leek")
+```
+Taking a substring of a string
+```{r}
+substr("Jeffrey Leek", 1, 7)
+```
+
+Paste two strings together:
+```{r}
+paste("Jeffrey", "Leek")
+```
+
+To paste strings together with no paste utilize the paste0() function
+
+```{r}
+paste0("Jeffery","Leek")
+```
+
+To trim white space off of strings:
+```{r}
+library(stringr)
+str_trim("Jeff         ")
+```
+

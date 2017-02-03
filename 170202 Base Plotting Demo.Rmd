@@ -1,0 +1,68 @@
+Simulating data:
+
+```{r}
+x <- rnorm(100)
+hist(x) #default y axis for hist() is frequency
+```
+
+Setting second variable Y and plotting against X:
+
+```{r}
+y <- rnorm(100)
+plot(x,y)
+```
+
+To adjust the margins, you set a vector of four integers to argument mar =. Order of margins is south, east, north, west.
+
+```{r}
+par(mar = c(2,2,2,2))
+plot(x,y) #you can lose margins if you push margins too much
+```
+
+To change the plotting symbol, use the pch argument:
+
+```{r}
+plot(x,y, pch=11)
+```
+
+To add title and text:
+
+```{r}
+plot(x,y, pch=7, col = "red")
+title("Scatterplot")
+text(-2, -2, "Label") #sets text at the coordinates
+legend("topleft", legend = "Data", pch =7, col = "red")
+fit <- lm(y~x)
+abline(fit, lwd=3, col = "blue")
+
+
+
+```
+
+If you want two plots with same relationship to a given variable:
+
+```{r}
+z <- rpois(100,2)
+par(mfrow = c(2,1))
+par(mar = c(2,5,2,5))
+plot(x,y, pch=7, xlab = "weight", ylab = "height", main = "Scatterplot", col = "red")
+plot(x,z, pch=8, xlab = "weight", ylab = "height", main = "Scatterplot", col = "red")
+legend("topright", legend = "Data", pch =7, col = "red")
+fit <- lm(y~x)
+abline(fit, lwd=3, col = "blue")
+
+```
+
+To create a scatter plot where points differentiate between factor levels by color
+
+```{r}
+x <- rnorm(100)
+y <- x + rnorm(100)
+g <- gl(2,50, labels = c("Male", "Female"))
+
+plot(x,y)
+points(x[g == "Male"], y[g == "Male"], col = "green")
+points(x[g == "Female"], y[g == "Female"], col = "blue")
+
+```
+
