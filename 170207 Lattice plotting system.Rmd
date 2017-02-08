@@ -68,9 +68,7 @@ xyplot(y~x | f, panel = function(x,y,...){
 })
 ```
 
-Many panel lattice plot:
 
-```{r}
 
-```
+
 

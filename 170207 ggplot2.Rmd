@@ -33,7 +33,7 @@ qplot(hwy, data = mpg, fill = drv)
 Another feature: Facets (like panels in lattice)
 
 ```{r}
-qplot(displ, hwy, data = mpg, facets = .~drv) 
+qplot(hwy, data = mpg, facets = .~drv) 
 #the facets paramets takes a variable on the left hand side and the right hand side, separated by a tilde 
 #variable on the right determines the columsn of the panels, and the left determines the rows
 ```
@@ -41,5 +41,263 @@ qplot(displ, hwy, data = mpg, facets = .~drv)
 ```{r}
 qplot(hwy, data = mpg, facets = drv~., binwidth =2)
 #here the drv sits on the left hand side of the tilde which results in the plots being stacked as rows
+```
+
+=======================================================================================
+
+Notes from swirl()
+
+Specifying only the y paramter to qplot, without an x argument, plots values of the y in order in which they occur in the data.
+
+```{r}
+qplot(y = hwy, data = mpg, color = drv)
+# This data is from swirl(); setting color to drv will show the break down based on factor
+```
+
+To create a boxplot:
+
+Call qplot now with 4 arguments. First specify the variable by which you'll split the data(the factor), in this case drv, then specify the variable which you want to examine, in this case hwy. The third argument is data (set equal to mpg), and the fourth, the geom, set equal to the string "boxplot"
+
+```{r}
+qplot(drv, hwy, data = mpg, geom = "boxplot")
+```
+
+The all-purpose qplot can also create box and whisker plots.  Call qplot now with 4
+| arguments. First specify the variable by which you'll split the data, in this case drv, then specify the variable which you want to examine, in this case hwy. The third argument is data (set equal to mpg), and the fourth, the geom, set equal to the string "boxplot"
+
+```{r}
+qplot(drv, hwy, data = mpg, geom = "boxplot", color = manufacturer)
+```
+
+
+Setting the color to another factor variable will return boxplots in clusters, divided initially by the 1st argument provided(drv), then will break apart each box into smaller boxes color coded to the variable passed to the color argument (manufacturer)
+
+
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth"), facets = .~drv)
+```
+
+You can set plots to variabels, which will NOT display them on the viewer. 
+
+```{r}
+g <- ggplot(mpg, aes(displ, hwy))
+```
+
+ggplot does not know how to display the data as it was not specified how you wanted to see it. To do this:
+
+```{r}
+g+geom_point()
+```
+
+By calling the function geom_point you added a layer. By not assigning the expression to a variable you displayed a plot. Notice that you didn't have to pass any arguments to the function geom_point. That's because the object g has all the data stored in it. 
+
+To add a confidence band around the plotted line:
+
+```{r}
+g+geom_point()+geom_smooth()
+```
+
+See how wide it is at the right? Let's try a different smoothing function. Use the up arrow to recover the expression you just typed, and instead of calling geom_smooth with no arguments, call it with the argument method set equal to the string "lm".
+
+```{r}
+g+geom_point()+geom_smooth(method = "lm") #changes smoothing to "linear model"
+```
+
+By changing the smoothing function to "lm" (linear model) ggplot2 generated a regression line through the data. Now recall the expression you just used and add to it another call, this time to the function facet_grid.
+
+To break the plot above into separate facets, still incorporating the linear model line:
+
+```{r}
+g+geom_point()+geom_smooth(method = "lm") + facet_grid(.~drv)
+```
+
+To add a title:
+
+```{r}
+g+geom_point()+geom_smooth(method = "lm") + facet_grid(.~drv) + ggtitle("Swirl Rules!")
+```
+
+Modifying aesthetics: 
+
+```{r}
+g + geom_point(color = "pink", size = 4, alpha = 1/2)
+```
+
+Now we'll modify the aesthetics so that color indicates which drv type each point represents. Again, use g and add to it a call to the function geom_point with 3. The first is size set equal to 4, the second is alpha equal to 1/2. The third is a call to the function aes with the argument color set equal to drv. Note that you MUST use the function aes since the color of the points is data dependent and not a constant as it was in the previous example.
+
+```{r}
+g + geom_point(size = 4, alpha = 1/2, aes(color = drv))
+```
+
+Modifying Labels:
+
+```{r}
+g + geom_point(aes(color = drv)) + labs(title = "Swirl Rules!") + labs(x = "Displacement", y = "Hwy Mileage")
+#Note: you cancombine the two calls to the function labs
+```
+
+
+Customizing the geom_smooth calls:
+
+```{r}
+g + geom_point(size = 2, alpha = 1/2, aes(color = drv)) + geom_smooth(size = 4, linetype = 3, method = "lm", se = FALSE)
+```
+
+The method specified a linear regression (note the negative slope indicating that the bigger the displacement the lower the gas mileage), the linetype specified that it should be dashed (not continuous), the size made the dashes big, and the se flag told ggplot to turn off the gray shadows indicating standard errors (confidence intervals).
+
+
+Simple plot using the black and white theme:
+
+```{r}
+g + geom_point(aes(color = drv)) + theme_bw(base_family = "Times")
+#you'll notice that the font in the labels changed
+```
+
+
+Differences between base plot and ggplot2 concerning axis limitation:
+
+```{r}
+#Base plot
+plot(myx, myy, type="l",ylim=c(-3,3))
+```
+```{r}
+#ggplot
+g <- ggplot(testdat, aes(x = myx, y=myy))
+g + geom_line()
+```
+
+```{r}
+g + geom_line() + ylim(-3,3)
+```
+
+Notice that by doing this, ggplot simply ignored the outlier point at (50,100). There's a break in the line which isn't very noticeable. Now recall that at the beginning of the lesson we mentioned 7 components of a ggplot plot, one of which was a coordinate system. This is a situation where using a coordinate system would be helpful. Instead of adding ylim(-3,3) to the expression g+geom_line(), add a call to the function coord_cartesian with the argument ylim set equal to c(-3,3).
+
+```{r}
+g + geom_line() + coord_cartesian(ylim = c(-3,3))
+```
+
+
+FINAL EXAMPLE (progression)
+
+```{r}
+g <- ggplot(mpg, aes(x = displ, y = hwy, color = factor(year)))
+g + geom_point() + facet_grid(drv~cyl, margins = TRUE)
+```
+
+The margins argument tells ggplot to display the marginal totals over each row and column, so instead of seeing 3 rows (the number of drv factors) and 4 columns (the number of cyl factors) we see a 4 by 5 display. Note that the panel in position (4,5) is a tiny version of the scatterplot of the entire dataset.
+
+```{r}
+g + geom_point() + facet_grid(drv~cyl, margins = TRUE) + geom_smooth(method = "lm", se = FALSE, size = 2, color = "black")
+```
+
+```{r}
+g + geom_point() + facet_grid(drv~cyl, margins = TRUE) + geom_smooth(method = "lm", se = FALSE, size = 2, color = "black") + labs(x = "Displacement", y = "Highway Mileage", title = "Swirl Rules!")
+```
+
+SWIRL GGPLOT EXTRAS:
+
+Using a much larger data set, plot a histogram with a selected binwidth:
+```{r}
+qplot(price, data = diamonds, binwidth = 18497/30)
+```
+
+Histogram colored using the factor levels for cut.
+
+```{r}
+qplot(price, data = diamonds, binwidth = 18497/30, fill = cut)
+```
+
+Now we'll replot the histogram as a density function which will show the proportion of diamonds in each bin. This means that the shape will be similar but the scale on the y-axis will be different since, by definition, the density function is nonnegative everywhere, and the area under the curve is one. To do this, simply call qplot with 3 arguments. The first 2 are price and data (set equal to diamonds). The third is geom which should be set equal to the string "density". 
+
+```{r}
+qplot(price, data = diamonds, geom = "density")
+```
+
+Notice that the shape is similar to that of the histogram we saw previously. The highest peak is close to 0 on the x-axis meaning that most of the diamonds in the dataset were inexpensive. In general, as prices increase (move right along the x-axis) the number of diamonds (at those prices) decrease. The exception to this is when the price is around $4000; there's a slight increase in frequency. Let's see if cut is responsible for this increase.
+
+```{r}
+qplot(price, data = diamonds, geom = "density", color = cut)
+```
+
+SCATTER PLOTS:
+
+Let's start with carat and price. Use these as the first 2 arguments of qplot. The third should be data set equal to the dataset.
+
+```{r}
+qplot(carat, price, data = diamonds)
+```
+
+We see the positive trend here, as the number of carats increases the price also goes up.
+
+
+```{r}
+qplot(carat, price, data = diamonds, shape = cut)
+
+```
+The same scatterplot appears, except the cuts of the diamonds are distinguished by different symbols. The legend at the right tells you which symbol is associated with each cut. These are small and hard to read, so rerun the same command, except this time instead of setting the argument shape equal to cut, set the argument color equal to cut.
+
+```{r}
+qplot(carat, price, data = diamonds, color = cut)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, color = cut)
+```
+
+Again, we see the same scatterplot, but slightly more compressed and showing 5 regression lines, one for each cut of diamonds. It might be hard to see, but around each line is a shadow showing the 95% confidence interval. We see, unsurprisingly, that the better the cut, the steeper (more positive) the slope of the lines.
+
+
+Split the scatter into facts dependent on the cut variable:
+
+```{r}
+qplot(carat, price, data = diamonds, color = cut, facets = .~cut) + geom_smooth(method = "lm")
+```
+
+More ggplots:
+
+```{r}
+g <- ggplot(diamonds, aes(depth, price))
+#Now suppose we want to see a scatterplot of the relationship between depth and price
+g + geom_point(alpha = 1/3)
+```
+
+That's somewhat interesting. We see that depth ranges from 43 to 79, but the densest distribution is around 60 to 65. Suppose we want to see if this relationship (between depth and price) is affected by cut or carat. We know cut is a factor with 5 levels (Fair, Good, Very Good, Premium, and Ideal). But carat is numeric and not a discrete factor. Can we do this?
+
+Of course! That's why we asked. R has a handy command, cut, which allows you to divide your data into sets and label each entry as belonging to one of the sets, in effect creating a new factor. First, we'll have to decide where to cut the data.
+
+Let's divide the data into 3 pockets, so 1/3 of the data falls into each. We'll use the R command quantile to do this. Create the variable cutpoints and assign to it the output of a call to the function quantile with 3 arguments. The first is the data to cut, namely diamonds$carat; the second is a call to the R function seq. This is also called with 3 arguments, (0, 1, and length set equal to 4). The third argument to the call to quantile is the boolean na.rm set equal to TRUE.
+
+```{r}
+cutpoints <- quantile(diamonds$carat, seq(0,1, length = 4), na.rm = TRUE)
+```
+
+We see a 4-long vector (explaining why length was set equal to 4). We also see that .2 is the smallest carat size in the dataset and 5.01 is the largest. One third of the diamonds are between .2 and .5 carats and another third are between .5 and 1 carat in size. The remaining third are between 1 and 5.01 carats. Now we can use the R command cut to label each of the 53940 diamonds in the dataset as belonging to one of these 3 factors. Create a new name in diamonds, diamonds$car2 by assigning it the output of the call to cut. This command takes 2 arguments, diamonds$carat, which is what we want to cut, and cutpoints, the places where we'll cut.
+
+```{r}
+diamonds$car2 <- cut(diamonds$carat, cutpoints)
+```
+
+Now we can continue with our multi-facet plot. First we have to reset g since we changed the dataset (diamonds) it contained (by adding a new column). Assign to g the output of a call to ggplot with 2 arguments. The dataset diamonds is the first, and a call to the function aes with 2 arguments (depth,price) is the second.
+
+```{r}
+g <- ggplot(diamonds, aes(depth, price))
+```
+
+Now add to g calls to 2 functions. This first is a call to geom_point with the argument
+alpha set equal to 1/3. The second is a call to the function facet_grid using the formula cut ~ car2 as its argument.
+
+```{r}
+g+geom_point(alpha=1/3)+facet_grid(cut~car2)
+```
+
+```{r}
+g+geom_point(alpha=1/3)+facet_grid(cut~car2) + geom_smooth(method = "lm", size = 3, color = "pink")
+```
+
+Last boxplot:
+
+```{r}
+ggplot(diamonds,aes(carat,price))+geom_boxplot()+facet_grid(.~cut)
 ```
 
