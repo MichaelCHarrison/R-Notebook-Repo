@@ -1,0 +1,76 @@
+The Lattice Plotting System
+
+Lattice functions:
+
+xyplot(y~x | f * g, data)
+- uses formula notation, hence the tildy 
+- on left of tildy is y axis variable, right is x axis
+- f and g are conditioning variables which are optional; indicate an interaction between the two variables
+- second argument is data frame or list for function; if none passed, parent frame in the workspace is used
+
+```{r}
+library(lattice)
+library(datasets)
+
+xyplot(Ozone ~ Wind, data = airquality)
+```
+
+Slightly more complicated plot. Converted month into a factor, plotting ozone against wind by month.
+
+```{r}
+airquality <- transform(airquality, Month = factor(Month))
+xyplot(Ozone ~ Wind | Month, data = airquality, layout = c(5,1))
+```
+
+Lattice behavior: lattice functions behave differently from base graphics
+- base graphics plot data directly to graphics device; lattice grahpics return an object of class trellis
+- print methods for lattice functions actually do the work of plotting the data on the graphcis device
+- lattice functions return "plot objects" that can in principle be stored (usually better to svae the code + data)
+- On the command line, trellis objects are auto-printed so that it appears the function is plotting the data
+```{r}
+p <- xyplot(Ozone ~ Wind, data = airquality) #If run, nothing will appear
+```
+```{r}
+print(p) #explicit printing generates plot
+```
+
+Lattice Panel Functions
+- Lattice functions have a panel function which controls what happens inside each panel of the plot
+- The lattice package comes with deault panel functions, but you can supply your own if you want to customize what happens in each panel
+- Panel functions receive the xy coordinates of teh data points in their panel (along with any optional arguments)
+
+```{r}
+set.seed(10)
+x <- rnorm(100)
+f <- rep(0:1, each = 50)
+y <- x + f - f * x + rnorm(100, sd = 0.5)
+f <- factor(f, labels = c("Group 1", "Group 2"))
+xyplot(y ~ x | f, layout = c(2,1)) #Plot with 2 panels
+```
+
+To call custom panel:
+
+```{r}
+xyplot(y~x | f, panel = function(x,y,...){
+        panel.xyplot(x,y,...) #first call the default panel function for 'xyplot'
+        panel.abline(h = median(y), lty= 2) #add horizontal line at the median
+        
+})
+```
+
+Custom regression line:
+
+```{r}
+xyplot(y~x | f, panel = function(x,y,...){
+        panel.xyplot(x,y,...) #first call the default panel function for 'xyplot'
+        panel.lmline(x,y,col =2) #overlay a simple linear regression line
+
+})
+```
+
+Many panel lattice plot:
+
+```{r}
+
+```
+

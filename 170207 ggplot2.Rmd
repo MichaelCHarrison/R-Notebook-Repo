@@ -1,0 +1,45 @@
+ggplot2 plotting system: 
+
+Q PLOT
+
+```{r}
+library(ggplot2)
+str(mpg)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg)
+```
+
+Modifying aesthetics
+
+```{r}
+qplot(displ, hwy, data = mpg, color = drv) #color mapped to the drive variable
+```
+
+Adding a geom - statitic summary of the data:
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth"))
+#95% confidence levels in shaded area
+```
+
+Histograms:
+
+```{r}
+qplot(hwy, data = mpg, fill = drv)
+```
+
+Another feature: Facets (like panels in lattice)
+
+```{r}
+qplot(displ, hwy, data = mpg, facets = .~drv) 
+#the facets paramets takes a variable on the left hand side and the right hand side, separated by a tilde 
+#variable on the right determines the columsn of the panels, and the left determines the rows
+```
+
+```{r}
+qplot(hwy, data = mpg, facets = drv~., binwidth =2)
+#here the drv sits on the left hand side of the tilde which results in the plots being stacked as rows
+```
+
