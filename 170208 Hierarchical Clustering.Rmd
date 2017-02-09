@@ -1,0 +1,36 @@
+HIERARCHICAL CLUSTERING
+
+
+```{r}
+set.seed(1234)
+par(mar = c(0,0,0,0))
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = .2)
+y <- rnorm(12, mean = rep(c(1,2,1), each = 4), sd = 0.2)
+plot(x,y,col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character((1:12)))
+```
+
+First thing you need to do to run hierarchical clustering algorithm is to calculate the distance between all the different points; all the pairwise distances. Easiest way is to use the dist() functions:
+
+```{r}
+dataFrame <- data.frame(x = x, y = y)
+dist(dataFrame) #defaults to euclidean distance
+```
+
+```{r}
+distxy <- dist(dataFrame)
+hClustering <- hclust(distxy)
+plot(hClustering)
+```
+
+
+heatmap():
+
+The last function to highlight is the heatmap function for visualizing matrix data. So if you have an extremely large table or a large matrix of numbers that are kind of similarly scaled, and you want to take a look at them really quickly in an organized way, you can call the heatmap function. And what the heat map function does is essentially runs a hierarchical cluster analysis on the rows of the table and on the columns of the table. So if you can imagine the, the you know, rows of the table are like observations. And then it runs a cluster analysis on the rows of the table. And then, think of the columns of the, of the table as, as sets of observations. Even if they're not actually observations. The columns, for example, might be variables or something like that. But think of them as just different observations. You can write a cluster analysis on that, too. And the idea with the heatmap function is that it uses the hierarchical clustering function to organize the rows and the columns of the tables so that you can visualize them. You can visualize kind of groups or blocks of observations within the table using the image function. So, what it does is it creates a image plot here, and and it reorders the columns and the rows of the table according to the hierarchical clustering algorithm. So here you can see that for example, along the rows I've got this hierarchical, this cluster dendogram which shows that there are probably you know, three clusters. And those clusters, rows are all grouped together. And then there are only two columns in the data frame. So it's not particularly interesting to do a hierarchical cluster analysis on that. But if you had many,many columns, you know, you would reorganize the columns so that we, they would be kind of, the closer ones would be closer together, and the farther ones would be farther apart. And so, the heatmap function is really useful for kind of, or, as a very quickly visualizing this kind of high dimensional table data. 
+
+```{r}
+set.seed(143)
+dataMatrix <- as.matrix(dataFrame)[sample(1:12),]
+heatmap(dataMatrix)
+```
+
